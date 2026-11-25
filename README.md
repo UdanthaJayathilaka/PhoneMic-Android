@@ -6,6 +6,9 @@
 - PC එකේ IP එක එක පාරක් type කළාම සේව් වෙනවා.
 - සම්බන්ධතාවය කැඩුණොත් ඉබේම ආයෙ සම්බන්ධ වෙනවා.
 - PC එකේ **F9** ඔබලා mute කළාම ෆෝන් එකේ මයික් එකත් ඇත්තටම නවතිනවා (ආයෙ F9 ඔබනකම්).
+- PC address එක ගහන්න ඕනේ නෑ: app එක PC එක ඉබේම හොයාගන්නවා (address කොටුව හිස්ව තියන්න).
+- වර්ණ (PC app එකේ වගේම): **කොළ** = live, **අළු** = mute, **රතු** = සම්බන්ධ නෑ. Notification එකෙත් පේනවා.
+- Home screen widget: home screen එක long-press → Widgets → **Phone Mic**. Tap එකෙන් start / stop.
 
 ## APK එක හදාගන්න ක්‍රමය
 

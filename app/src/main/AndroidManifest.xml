@@ -23,6 +23,26 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ToggleActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <receiver
+            android:name=".MicWidget"
+            android:exported="false"
+            android:label="Phone Mic">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/mic_widget_info" />
+        </receiver>
+
         <service
             android:name=".MicService"
             android:exported="false"
