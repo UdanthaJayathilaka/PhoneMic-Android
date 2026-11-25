@@ -20,6 +20,7 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString.Companion.toByteString
+import org.json.JSONObject
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.security.cert.CertificateException
@@ -48,6 +49,7 @@ class MicService : Service() {
 
     @Volatile private var running = false
     @Volatile private var record: AudioRecord? = null
+    @Volatile private var muted = false  // set by the PC app (F9)
     private var worker: Thread? = null
     private var wakeLock: PowerManager.WakeLock? = null
 
@@ -160,7 +162,24 @@ class MicService : Service() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 webSocket.send("{\"rate\":$RATE}")
                 open.set(true)
-                MicState.status = "Live - sending to PC"
+                MicState.status = if (muted) "Muted from PC" else "Live - sending to PC"
+            }
+
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                // the PC app tells us to mute / unmute (F9 on the PC)
+                try {
+                    when (JSONObject(text).optString("cmd")) {
+                        "mute" -> {
+                            muted = true
+                            MicState.status = "Muted from PC"
+                        }
+                        "unmute" -> {
+                            muted = false
+                            MicState.status = "Live - sending to PC"
+                        }
+                    }
+                } catch (_: Exception) {
+                }
             }
 
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
@@ -184,6 +203,7 @@ class MicService : Service() {
 
         try {
             rec.startRecording()
+            var recording = true
             val buf = ByteArray(4096)
             var lastAttempt = 0L
 
@@ -193,6 +213,20 @@ class MicService : Service() {
                     lastAttempt = now
                     MicState.status = "Connecting..."
                     wsRef.set(client.newWebSocket(request, listener))
+                }
+
+                if (muted) {
+                    // really switch the microphone off while muted
+                    if (recording) {
+                        try { rec.stop() } catch (_: Exception) {}
+                        recording = false
+                        MicState.level = 0f
+                    }
+                    Thread.sleep(100)
+                    continue
+                } else if (!recording) {
+                    rec.startRecording()
+                    recording = true
                 }
 
                 val n = rec.read(buf, 0, buf.size)
